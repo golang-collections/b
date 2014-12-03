@@ -92,7 +92,7 @@ func (t *Tree) dump() string {
 			h := handle(p)
 			n := 0
 			for i, v := range x.x {
-				if v.ch != nil || v.k != nil {
+				if v.ch != nil {
 					n = i + 1
 				}
 			}
@@ -113,7 +113,7 @@ func (t *Tree) dump() string {
 			h := handle(p)
 			n := 0
 			for i, v := range x.d {
-				if v.k != nil || v.v != nil {
+				if v.v != nil {
 					n = i + 1
 				}
 			}
@@ -145,8 +145,8 @@ func rng() *mathutil.FC32 {
 	return x
 }
 
-func cmp(a, b interface{}) int {
-	return a.(int) - b.(int)
+func cmp(a, b int) int {
+	return a - b
 }
 
 func TestGet0(t *testing.T) {
