@@ -163,9 +163,14 @@ func TestGet0(t *testing.T) {
 }
 
 func TestSetGet0(t *testing.T) {
+	v314 := []byte("v314")
+	v278 := []byte("v278")
+	v05 := []byte("v0.5")
+
+
 	r := TreeNew(cmp)
 	set := r.Set
-	set(42, 314)
+	set(42, v314)
 	if g, e := r.Len(), 1; g != e {
 		t.Fatal(g, e)
 	}
@@ -175,11 +180,11 @@ func TestSetGet0(t *testing.T) {
 		t.Fatal(ok)
 	}
 
-	if g, e := v.(int), 314; g != e {
+	if g, e := v, v314; &g[0] != &e[0] {
 		t.Fatal(g, e)
 	}
 
-	set(42, 278)
+	set(42, v278)
 	if g, e := r.Len(), 1; g != e {
 		t.Fatal(g, e)
 	}
@@ -189,11 +194,11 @@ func TestSetGet0(t *testing.T) {
 		t.Fatal(ok)
 	}
 
-	if g, e := v.(int), 278; g != e {
+	if g, e := v, v278; &g[0] != &e[0] {
 		t.Fatal(g, e)
 	}
 
-	set(420, 0.5)
+	set(420, v05)
 	if g, e := r.Len(), 2; g != e {
 		t.Fatal(g, e)
 	}
@@ -203,7 +208,7 @@ func TestSetGet0(t *testing.T) {
 		t.Fatal(ok)
 	}
 
-	if g, e := v.(int), 278; g != e {
+	if g, e := v, v278; &g[0] != &e[0] {
 		t.Fatal(g, e)
 	}
 
@@ -212,14 +217,22 @@ func TestSetGet0(t *testing.T) {
 		t.Fatal(ok)
 	}
 
-	if g, e := v.(float64), 0.5; g != e {
+	if g, e := v, v05; &g[0] != &e[0] {
 		t.Fatal(g, e)
 	}
 }
-
+/*
 func TestSetGet1(t *testing.T) {
+	v0 := []byte("0")
+	v1 := []byte("1")
+	v555 := []byte("555")
+	vaaa := []byte("aaa")
+	v333 := []byte("333")
+	vccc := []byte("ccc")
+	v314 := []byte("314")
+
 	const N = 40000
-	for _, x := range []int{0, -1, 0x555555, 0xaaaaaa, 0x333333, 0xcccccc, 0x314159} {
+	for _, x := range [][]byte{v0,v1,v555,vaaa,v333,vccc,v314} {
 		r := TreeNew(cmp)
 		set := r.Set
 		a := make([]int, N)
@@ -228,7 +241,7 @@ func TestSetGet1(t *testing.T) {
 		}
 		for i, k := range a {
 			set(k, k^x)
-			if g, e := r.Len(), i+1; g != e {
+			if g, e := r.Len(), i+1; &g[0] != &e[0] {
 				t.Fatal(i, g, e)
 			}
 		}
@@ -239,7 +252,7 @@ func TestSetGet1(t *testing.T) {
 				t.Fatal(i, k, v, ok)
 			}
 
-			if g, e := v.(int), k^x; g != e {
+			if g, e := v, k^x; &g[0] != &e[0] {
 				t.Fatal(i, g, e)
 			}
 
@@ -261,7 +274,7 @@ func TestSetGet1(t *testing.T) {
 				t.Fatal(i, k, v, ok)
 			}
 
-			if g, e := v.(int), k^x+42; g != e {
+			if g, e := v, k^x+42; &g[0] != &e[0] {
 				t.Fatal(i, g, e)
 			}
 
@@ -273,8 +286,9 @@ func TestSetGet1(t *testing.T) {
 		}
 	}
 }
-
+*/
 func TestPrealloc(*testing.T) {
+	v0 := []byte("0")
 	const n = 2e6
 	rng := rng()
 	a := make([]int, n)
@@ -283,11 +297,11 @@ func TestPrealloc(*testing.T) {
 	}
 	r := TreeNew(cmp)
 	for _, v := range a {
-		r.Set(v, 0)
+			r.Set(v, v0)
 	}
 	r.Close()
 }
-
+/*
 func BenchmarkSetSeq1e3(b *testing.B) {
 	benchmarkSetSeq(b, 1e3)
 }
@@ -319,7 +333,7 @@ func benchmarkSetSeq(b *testing.B, n int) {
 	}
 	b.StopTimer()
 }
-
+*/
 func BenchmarkGetSeq1e3(b *testing.B) {
 	benchmarkGetSeq(b, 1e3)
 }
@@ -337,9 +351,11 @@ func BenchmarkGetSeq1e6(b *testing.B) {
 }
 
 func benchmarkGetSeq(b *testing.B, n int) {
+	a := make([][]byte, n)
 	r := TreeNew(cmp)
 	for i := 0; i < n; i++ {
-		r.Set(i, i)
+		a[i] = []byte(fmt.Sprintf("%d", i))
+		r.Set(i, a[i])
 	}
 	debug.FreeOSMemory()
 	b.ResetTimer()
@@ -369,6 +385,7 @@ func BenchmarkSetRnd1e6(b *testing.B) {
 }
 
 func benchmarkSetRnd(b *testing.B, n int) {
+	v0 := []byte("0")
 	rng := rng()
 	a := make([]int, n)
 	for i := range a {
@@ -381,7 +398,7 @@ func benchmarkSetRnd(b *testing.B, n int) {
 		debug.FreeOSMemory()
 		b.StartTimer()
 		for _, v := range a {
-			r.Set(v, 0)
+			r.Set(v, v0)
 		}
 		b.StopTimer()
 		r.Close()
@@ -406,6 +423,7 @@ func BenchmarkGetRnd1e6(b *testing.B) {
 }
 
 func benchmarkGetRnd(b *testing.B, n int) {
+	v0 := []byte("0")
 	r := TreeNew(cmp)
 	rng := rng()
 	a := make([]int, n)
@@ -413,7 +431,7 @@ func benchmarkGetRnd(b *testing.B, n int) {
 		a[i] = rng.Next()
 	}
 	for _, v := range a {
-		r.Set(v, 0)
+			r.Set(v, v0)
 	}
 	debug.FreeOSMemory()
 	b.ResetTimer()
@@ -425,10 +443,18 @@ func benchmarkGetRnd(b *testing.B, n int) {
 	b.StopTimer()
 	r.Close()
 }
-
+/*
 func TestSetGet2(t *testing.T) {
+	v0 := []byte("0")
+	v1 := []byte("1")
+	v555 := []byte("555")
+	vaaa := []byte("aaa")
+	v333 := []byte("333")
+	vccc := []byte("ccc")
+	v314 := []byte("314")
+
 	const N = 40000
-	for _, x := range []int{0, -1, 0x555555, 0xaaaaaa, 0x333333, 0xcccccc, 0x314159} {
+	for _, x := range [][]byte{v0,v1,v555,vaaa,v333,vccc,v314} {
 		rng := rng()
 		r := TreeNew(cmp)
 		set := r.Set
@@ -438,7 +464,7 @@ func TestSetGet2(t *testing.T) {
 		}
 		for i, k := range a {
 			set(k, k^x)
-			if g, e := r.Len(), i+1; g != e {
+			if g, e := r.Len(), i+1; &g[0] != &e[0] {
 				t.Fatal(i, x, g, e)
 			}
 		}
@@ -449,7 +475,7 @@ func TestSetGet2(t *testing.T) {
 				t.Fatal(i, k, v, ok)
 			}
 
-			if g, e := v.(int), k^x; g != e {
+			if g, e := v, k^x; &g[0] != &e[0] {
 				t.Fatal(i, g, e)
 			}
 
@@ -470,7 +496,7 @@ func TestSetGet2(t *testing.T) {
 				t.Fatal(i, k, v, ok)
 			}
 
-			if g, e := v.(int), k^x+42; g != e {
+			if g, e := v, k^x+42; &g[0] != &e[0] {
 				t.Fatal(i, g, e)
 			}
 
@@ -482,7 +508,8 @@ func TestSetGet2(t *testing.T) {
 		}
 	}
 }
-
+*/
+/*
 func TestSetGet3(t *testing.T) {
 	r := TreeNew(cmp)
 	set := r.Set
@@ -503,13 +530,15 @@ func TestSetGet3(t *testing.T) {
 			t.Fatal(j)
 		}
 
-		if g, e := v.(int), j; g != e {
+		if g, e := v, j; &g[0] != &e[0] {
 			t.Fatal(g, e)
 		}
 	}
 }
-
+*/
 func TestDelete0(t *testing.T) {
+	v0 := []byte("0")
+	v1 := []byte("1")
 	r := TreeNew(cmp)
 	if ok := r.Delete(0); ok {
 		t.Fatal(ok)
@@ -519,7 +548,7 @@ func TestDelete0(t *testing.T) {
 		t.Fatal(g, e)
 	}
 
-	r.Set(0, 0)
+	r.Set(0, v0)
 	if ok := r.Delete(1); ok {
 		t.Fatal(ok)
 	}
@@ -540,8 +569,8 @@ func TestDelete0(t *testing.T) {
 		t.Fatal(ok)
 	}
 
-	r.Set(0, 0)
-	r.Set(1, 1)
+	r.Set(0, v0)
+	r.Set(1, v1)
 	if ok := r.Delete(1); !ok {
 		t.Fatal(ok)
 	}
@@ -566,8 +595,8 @@ func TestDelete0(t *testing.T) {
 		t.Fatal(ok)
 	}
 
-	r.Set(0, 0)
-	r.Set(1, 1)
+	r.Set(0, v0)
+	r.Set(1, v1)
 	if ok := r.Delete(0); !ok {
 		t.Fatal(ok)
 	}
@@ -592,10 +621,18 @@ func TestDelete0(t *testing.T) {
 		t.Fatal(ok)
 	}
 }
-
+/*
 func TestDelete1(t *testing.T) {
+	v0 := []byte("0")
+	v1 := []byte("1")
+	v555 := []byte("555")
+	vaaa := []byte("aaa")
+	v333 := []byte("333")
+	vccc := []byte("ccc")
+	v314 := []byte("314")
+
 	const N = 130000
-	for _, x := range []int{0, -1, 0x555555, 0xaaaaaa, 0x333333, 0xcccccc, 0x314159} {
+	for _, x := range [][]byte{v0,v1,v555,vaaa,v333,vccc,v314} {
 		r := TreeNew(cmp)
 		set := r.Set
 		a := make([]int, N)
@@ -651,7 +688,7 @@ func benchmarkDelSeq(b *testing.B, n int) {
 	}
 	b.StopTimer()
 }
-
+*/
 func BenchmarkDelRnd1e3(b *testing.B) {
 	benchmarkDelRnd(b, 1e3)
 }
@@ -669,6 +706,7 @@ func BenchmarkDelRnd1e6(b *testing.B) {
 }
 
 func benchmarkDelRnd(b *testing.B, n int) {
+	v0 := []byte("0")
 	rng := rng()
 	a := make([]int, n)
 	for i := range a {
@@ -679,7 +717,7 @@ func benchmarkDelRnd(b *testing.B, n int) {
 		b.StopTimer()
 		r := TreeNew(cmp)
 		for _, v := range a {
-			r.Set(v, 0)
+			r.Set(v, v0)
 		}
 		debug.FreeOSMemory()
 		b.StartTimer()
@@ -691,10 +729,18 @@ func benchmarkDelRnd(b *testing.B, n int) {
 	}
 	b.StopTimer()
 }
-
+/*
 func TestDelete2(t *testing.T) {
+	v0 := []byte("0")
+	v1 := []byte("1")
+	v555 := []byte("555")
+	vaaa := []byte("aaa")
+	v333 := []byte("333")
+	vccc := []byte("ccc")
+	v314 := []byte("314")
+
 	const N = 100000
-	for _, x := range []int{0, -1, 0x555555, 0xaaaaaa, 0x333333, 0xcccccc, 0x314159} {
+	for _, x := range [][]byte{v0,v1,v555,vaaa,v333,vccc,v314} {
 		r := TreeNew(cmp)
 		set := r.Set
 		a := make([]int, N)
@@ -746,7 +792,7 @@ func TestEnumeratorNext(t *testing.T) {
 		for verChange := 0; verChange < 16; verChange++ {
 			en, hit := r.Seek(test.k)
 
-			if g, e := hit, test.hit; g != e {
+			if g, e := hit, test.hit; &g[0] != &e[0] {
 				t.Fatal(i, g, e)
 			}
 
@@ -769,11 +815,11 @@ func TestEnumeratorNext(t *testing.T) {
 					t.Fatal(i, j, verChange)
 				}
 
-				if g, e := k.(int), up[j]; g != e {
+				if g, e := k.(int), up[j]; &g[0] != &e[0] {
 					t.Fatal(i, j, verChange, g, e)
 				}
 
-				if g, e := v.(int), 10*up[j]; g != e {
+				if g, e := v, 10*up[j]; &g[0] != &e[0] {
 					t.Fatal(i, g, e)
 				}
 
@@ -816,7 +862,7 @@ func TestEnumeratorPrev(t *testing.T) {
 		for verChange := 0; verChange < 16; verChange++ {
 			en, hit := r.Seek(test.k)
 
-			if g, e := hit, test.hit; g != e {
+			if g, e := hit, test.hit; &g[0] != &e[0] {
 				t.Fatal(i, g, e)
 			}
 
@@ -839,11 +885,11 @@ func TestEnumeratorPrev(t *testing.T) {
 					t.Fatal(i, j, verChange)
 				}
 
-				if g, e := k.(int), dn[j]; g != e {
+				if g, e := k.(int), dn[j]; &g[0] != &e[0] {
 					t.Fatal(i, j, verChange, g, e)
 				}
 
-				if g, e := v.(int), 10*dn[j]; g != e {
+				if g, e := v, 10*dn[j]; &g[0] != &e[0] {
 					t.Fatal(i, g, e)
 				}
 
@@ -893,7 +939,7 @@ func benchmarkSeekSeq(b *testing.B, n int) {
 	}
 	b.StopTimer()
 }
-
+*/
 func BenchmarkSeekRnd1e3(b *testing.B) {
 	benchmarkSeekRnd(b, 1e3)
 }
@@ -911,6 +957,7 @@ func BenchmarkSeekRnd1e6(b *testing.B) {
 }
 
 func benchmarkSeekRnd(b *testing.B, n int) {
+	v0 := []byte("0")
 	r := TreeNew(cmp)
 	rng := rng()
 	a := make([]int, n)
@@ -918,7 +965,7 @@ func benchmarkSeekRnd(b *testing.B, n int) {
 		a[i] = rng.Next()
 	}
 	for _, v := range a {
-		r.Set(v, 0)
+			r.Set(v, v0)
 	}
 	debug.FreeOSMemory()
 	b.ResetTimer()
@@ -949,9 +996,10 @@ func BenchmarkNext1e6(b *testing.B) {
 }
 
 func benchmarkNext(b *testing.B, n int) {
+	v0 := []byte("0")
 	t := TreeNew(cmp)
 	for i := 0; i < n; i++ {
-		t.Set(i, 0)
+		t.Set(i, v0)
 	}
 	debug.FreeOSMemory()
 	b.ResetTimer()
@@ -993,9 +1041,10 @@ func BenchmarkPrev1e6(b *testing.B) {
 }
 
 func benchmarkPrev(b *testing.B, n int) {
+	v0 := []byte("0")
 	t := TreeNew(cmp)
 	for i := 0; i < n; i++ {
-		t.Set(i, 0)
+		t.Set(i, v0)
 	}
 	debug.FreeOSMemory()
 	b.ResetTimer()
@@ -1027,15 +1076,16 @@ func TestSeekFirst0(t *testing.T) {
 }
 
 func TestSeekFirst1(t *testing.T) {
+	v10 := []byte("10")
 	b := TreeNew(cmp)
-	b.Set(1, 10)
+	b.Set(1, v10)
 	en, err := b.SeekFirst()
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	k, v, err := en.Next()
-	if k != 1 || v != 10 || err != nil {
+	if k != 1 || &v[0] != &v10[0] || err != nil {
 		t.Fatal(k, v, err)
 	}
 
@@ -1046,21 +1096,23 @@ func TestSeekFirst1(t *testing.T) {
 }
 
 func TestSeekFirst2(t *testing.T) {
+	v10 := []byte("10")
+	v20 := []byte("20")
 	b := TreeNew(cmp)
-	b.Set(1, 10)
-	b.Set(2, 20)
+	b.Set(1, v10)
+	b.Set(2, v20)
 	en, err := b.SeekFirst()
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	k, v, err := en.Next()
-	if k != 1 || v != 10 || err != nil {
+	if k != 1 || &v[0] != &v10[0] || err != nil {
 		t.Fatal(k, v, err)
 	}
 
 	k, v, err = en.Next()
-	if k != 2 || v != 20 || err != nil {
+	if k != 2 || &v[0] != &v20[0] || err != nil {
 		t.Fatal(k, v, err)
 	}
 
@@ -1071,27 +1123,30 @@ func TestSeekFirst2(t *testing.T) {
 }
 
 func TestSeekFirst3(t *testing.T) {
+	v10 := []byte("10")
+	v20 := []byte("20")
+	v30 := []byte("30")
 	b := TreeNew(cmp)
-	b.Set(2, 20)
-	b.Set(3, 30)
-	b.Set(1, 10)
+	b.Set(2, v20)
+	b.Set(3, v30)
+	b.Set(1, v10)
 	en, err := b.SeekFirst()
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	k, v, err := en.Next()
-	if k != 1 || v != 10 || err != nil {
+	if k != 1 || &v[0] != &v10[0] || err != nil {
 		t.Fatal(k, v, err)
 	}
 
 	k, v, err = en.Next()
-	if k != 2 || v != 20 || err != nil {
+	if k != 2 || &v[0] != &v20[0] || err != nil {
 		t.Fatal(k, v, err)
 	}
 
 	k, v, err = en.Next()
-	if k != 3 || v != 30 || err != nil {
+	if k != 3 || &v[0] != &v30[0] || err != nil {
 		t.Fatal(k, v, err)
 	}
 
@@ -1100,11 +1155,11 @@ func TestSeekFirst3(t *testing.T) {
 		t.Fatal(k, v, err)
 	}
 }
-
+/*
 func TestSeekLast0(t *testing.T) {
 	b := TreeNew(cmp)
 	_, err := b.SeekLast()
-	if g, e := err, io.EOF; g != e {
+	if g, e := err, io.EOF; &g[0] != &e[0] {
 		t.Fatal(g, e)
 	}
 }
@@ -1246,24 +1301,24 @@ func TestPut(t *testing.T) {
 		}
 
 		oldV, written := tr.Put(test.newK, func(old interface{}, exists bool) (newV interface{}, write bool) {
-			if g, e := exists, test.exists; g != e {
+			if g, e := exists, test.exists; &g[0] != &e[0] {
 				t.Fatal(iTest, g, e)
 			}
 
 			if exists {
-				if g, e := old.(int), test.oldV; g != e {
+				if g, e := old.(int), test.oldV; &g[0] != &e[0] {
 					t.Fatal(iTest, g, e)
 				}
 			}
 			return -1, test.write
 		})
 		if test.exists {
-			if g, e := oldV.(int), test.oldV; g != e {
+			if g, e := oldv, test.oldV; &g[0] != &e[0] {
 				t.Fatal(iTest, g, e)
 			}
 		}
 
-		if g, e := written, test.write; g != e {
+		if g, e := written, test.write; &g[0] != &e[0] {
 			t.Fatal(iTest, g, e)
 		}
 
@@ -1283,18 +1338,19 @@ func TestPut(t *testing.T) {
 				t.Fatal(iTest, err)
 			}
 
-			if g, e := k.(int), test.post[i]; g != e {
+			if g, e := k.(int), test.post[i]; &g[0] != &e[0] {
 				t.Fatal(iTest, g, e)
 			}
 
-			if g, e := v.(int), test.post[i+1]; g != e {
+			if g, e := v, test.post[i+1]; &g[0] != &e[0] {
 				t.Fatal(iTest, g, e)
 			}
 		}
 
 		_, _, err = en.Next()
-		if g, e := err, io.EOF; g != e {
+		if g, e := err, io.EOF; &g[0] != &e[0] {
 			t.Fatal(iTest, g, e)
 		}
 	}
 }
+*/
